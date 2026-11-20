@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Minhas candidaturas</h1>
+<p>Projetos nos quais você demonstrou interesse.</p>
+<div class="cards">
+{% for a in applications %}
+<article class="card">
+  <h2><a class="card-title" href="{{ url_for('project_detail', project_id=a.project_id) }}">{{ a.title }}</a></h2>
+  <p><strong>{{ a.amount_cents|brl }}</strong> · Prazo {{ a.deadline_date|brdate }}</p>
+  {% if a.selected_student_id == g.user.id %}
+    <p class="info-box">Você foi selecionado! {% if a.status == 'in_progress' %}<a class="button" href="{{ url_for('project_detail', project_id=a.project_id) }}#entrega">Entregar meu trabalho →</a>{% else %}Acompanhe seu projeto pela página de detalhes.{% endif %}</p>
+  {% elif a.status == 'open' %}
+    <p class="muted">Candidatura enviada — aguardando decisão da empresa.</p>
+  {% else %}
+    <p class="muted">O projeto foi fechado para novas candidaturas.</p>
+  {% endif %}
+  <p class="preserve-lines">{{ a.message }}</p>
+</article>
+{% else %}<p>Você ainda não enviou candidaturas.</p>{% endfor %}
+</div>
+{% endblock %}

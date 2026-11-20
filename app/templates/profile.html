@@ -1,0 +1,13 @@
+{% extends 'base.html' %}{% block content %}<div class="auth-card wide"><div class="eyebrow">{{ 'ESTUDANTE' if role == 'student' else 'EMPRESA' }}</div><h1>Editar perfil</h1><p>Atualize seus dados e salve as alterações.</p><p><a href="{{ url_for('profile') }}" class="text-link">← Voltar ao meu perfil</a></p>
+<form method="post" class="form-stack"><input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+{% if role == 'student' %}
+<label for="course">Curso</label><input id="course" name="course" maxlength="1000" value="{{ profile.course or '' }}">
+<label for="institution">Instituição de ensino</label><input id="institution" name="institution" maxlength="1000" value="{{ profile.institution or '' }}">
+<label for="skills">Habilidades</label><textarea id="skills" name="skills" rows="3" maxlength="1000">{{ profile.skills or '' }}</textarea>
+<label for="portfolio_url">Portfólio (link)</label><input id="portfolio_url" type="url" name="portfolio_url" maxlength="1000" placeholder="https://..." value="{{ profile.portfolio_url or '' }}">
+{% else %}
+<label for="company_name">Nome da empresa</label><input id="company_name" name="company_name" required maxlength="1000" value="{{ profile.company_name or '' }}">
+<label for="industry">Segmento</label><input id="industry" name="industry" maxlength="1000" value="{{ profile.industry or '' }}">
+<label for="description">Descrição do negócio</label><textarea id="description" name="description" rows="4" maxlength="1000">{{ profile.description or '' }}</textarea>
+{% endif %}
+<button class="button" type="submit">Salvar perfil</button></form></div>{% endblock %}

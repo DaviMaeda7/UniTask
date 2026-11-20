@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UniTask — Microprojetos universitários</title>
+<link rel="icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/png">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<body>
+<header class="site-header"><a class="brand" href="{{ url_for('home') }}" aria-label="UniTask, ir para o início"><img src="{{ url_for('static',filename='unitask-icon.png') }}" alt="" width="40" height="40"><span>Uni<strong>Task</strong></span></a>
+{% set ep = request.endpoint or '' %}
+<nav aria-label="Menu principal"><a href="{{ url_for('home') }}" {% if ep == 'home' %}class="nav-active" aria-current="page"{% endif %}>Início</a><a href="{{ url_for('projects') }}" {% if ep in ['projects','project_detail'] %}class="nav-active" aria-current="page"{% endif %}>Projetos</a>
+{% if g.user %}{% if g.user.role == 'company' %}<a href="{{ url_for('my_projects') }}" {% if ep in ['my_projects','project_applications'] %}class="nav-active" aria-current="page"{% endif %}>Meus projetos</a><a href="{{ url_for('create_project') }}" {% if ep == 'create_project' %}class="nav-active" aria-current="page"{% endif %}>Publicar projeto</a>{% else %}<a href="{{ url_for('my_applications') }}" {% if ep == 'my_applications' %}class="nav-active" aria-current="page"{% endif %}>Minhas candidaturas</a>{% endif %}<a href="{{ url_for('profile') }}" {% if ep in ['profile','edit_profile'] %}class="nav-active" aria-current="page"{% endif %}>Meu perfil</a>
+<form method="post" action="{{ url_for('logout') }}" class="nav-form"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit" class="nav-link">Sair</button></form>
+{% else %}<a href="{{ url_for('auth') }}" {% if ep in ['auth','register','login'] %}class="nav-active" aria-current="page"{% endif %}>Entrar</a>{% endif %}</nav></header>
+<main>{% for category,message in get_flashed_messages(with_categories=true) %}<div class="flash flash-{{ category }}" role="status">{{ message }}</div>{% endfor %}{% block content %}{% endblock %}</main>
+<footer class="site-footer"><div class="footer-inner"><div><a class="brand footer-brand" href="{{ url_for('home') }}"><img src="{{ url_for('static',filename='unitask-icon.png') }}" alt="" width="35" height="35"><span>Uni<strong>Task</strong></span></a><p>Oportunidades para universitários. Soluções para negócios locais.</p><small>Projeto acadêmico · Brasília/DF · 2026</small></div><div><h3>Explore</h3><a href="{{ url_for('home') }}">Como funciona</a><a href="{{ url_for('projects') }}">Projetos disponíveis</a></div><div><h3>Entre em contato</h3><p>Para a demonstração escolar, o contato é ilustrativo.</p><span class="footer-demo">Canal de suporte demonstrativo — não ativo</span></div></div><div class="footer-bottom">© UniTask — MVP escolar. Pagamentos exclusivamente simulados.</div></footer>
+</body></html>

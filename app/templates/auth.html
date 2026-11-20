@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="auth-shell" data-initial-mode="{{ mode|default('login') }}">
+  <div class="auth-card auth-unified">
+    <div class="auth-brand"><img src="{{ url_for('static', filename='unitask-icon.png') }}" alt="Símbolo do UniTask"><span>Uni<strong>Task</strong></span></div>
+    <h1 id="auth-title">{{ 'Crie sua conta' if mode == 'register' else 'Bem-vindo de volta!' }}</h1>
+    <p id="auth-intro">{{ 'Comece sua jornada no UniTask.' if mode == 'register' else 'Entre para continuar seus projetos.' }}</p>
+    <div class="auth-tabs" role="group" aria-label="Acessar ou criar uma conta">
+      <button type="button" class="auth-tab" data-set-mode="login" aria-pressed="{{ 'true' if mode != 'register' else 'false' }}">Entrar</button>
+      <button type="button" class="auth-tab" data-set-mode="register" aria-pressed="{{ 'true' if mode == 'register' else 'false' }}">Cadastrar</button>
+    </div>
+    <form id="login-form" class="form-stack" method="post" action="{{ url_for('login') }}" {% if mode == 'register' %}hidden{% endif %}>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label for="login-email">E-mail</label>
+      <input id="login-email" type="email" name="email" autocomplete="email" maxlength="254" required value="{{ request.form.get('email','') if mode != 'register' else '' }}">
+      <label for="login-password">Senha</label>
+      <input id="login-password" type="password" name="password" autocomplete="current-password" required>
+      <button class="button" type="submit">Entrar na plataforma</button>
+    </form>
+    <form id="register-form" class="form-stack" method="post" action="{{ url_for('register') }}" {% if mode != 'register' %}hidden{% endif %}>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label for="register-name">Nome completo ou nome da empresa</label>
+      <input id="register-name" name="name" autocomplete="name" maxlength="120" required value="{{ request.form.get('name','') if mode == 'register' else '' }}">
+      <label for="register-role">Tipo de conta</label>
+      <select id="register-role" name="role" required>
+        <option value="">Selecione...</option>
+        <option value="student" {% if mode == 'register' and request.form.get('role') == 'student' %}selected{% endif %}>Sou estudante</option>
+        <option value="company" {% if mode == 'register' and request.form.get('role') == 'company' %}selected{% endif %}>Sou empresa</option>
+      </select>
+      <label for="register-email">E-mail</label>
+      <input id="register-email" type="email" name="email" autocomplete="email" maxlength="254" required value="{{ request.form.get('email','') if mode == 'register' else '' }}">
+      <label for="register-password">Senha (mínimo 8 caracteres)</label>
+      <input id="register-password" type="password" name="password" autocomplete="new-password" minlength="8" maxlength="128" required>
+      <button class="button" type="submit">Criar minha conta</button>
+    </form>
+    <p class="auth-switch" id="auth-switch-login" {% if mode == 'register' %}hidden{% endif %}>Ainda não tem uma conta? <button type="button" class="text-link" data-set-mode="register">Cadastre-se</button></p>
+    <p class="auth-switch" id="auth-switch-register" {% if mode != 'register' %}hidden{% endif %}>Já tem uma conta? <button type="button" class="text-link" data-set-mode="login">Entrar</button></p>
+  </div>
+</section>
+<script src="{{ url_for('static', filename='auth.js') }}" defer></script>
+{% endblock %}

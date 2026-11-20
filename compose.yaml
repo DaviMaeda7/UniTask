@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: unitask
+      POSTGRES_PASSWORD: brisa3750
+      POSTGRES_DB: unitask
+    ports:
+      - "127.0.0.1:5434:5432"
+    volumes:
+      - unitask_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U unitask -d unitask"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+volumes:
+  unitask_pg_data:

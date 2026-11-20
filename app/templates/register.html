@@ -1,0 +1,7 @@
+{% extends 'base.html' %}{% block content %}<div class="auth-card"><div class="eyebrow">COMECE PELO UNItASK</div><h1>Criar minha conta</h1><p>Escolha seu perfil para participar dos microprojetos.</p>
+<form class="form-stack" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+<label for="name">Nome completo ou nome da empresa</label><input id="name" name="name" maxlength="120" required value="{{ request.form.get('name','') }}">
+<label for="email">E-mail</label><input id="email" type="email" name="email" maxlength="254" autocomplete="email" required value="{{ request.form.get('email','') }}">
+<label for="password">Senha (mínimo 8 caracteres)</label><input id="password" type="password" name="password" minlength="8" maxlength="128" autocomplete="new-password" required>
+<label for="role">Tipo de conta</label><select id="role" name="role" required><option value="">Selecione...</option><option value="student" {% if request.form.get('role')=='student' %}selected{% endif %}>Sou estudante</option><option value="company" {% if request.form.get('role')=='company' %}selected{% endif %}>Sou empresa</option></select>
+<button class="button" type="submit">Cadastrar</button></form><p>Já possui conta? <a href="{{ url_for('login') }}">Entrar</a></p></div>{% endblock %}

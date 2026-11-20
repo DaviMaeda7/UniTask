@@ -1,0 +1,9 @@
+{% extends 'base.html' %}{% block content %}
+<div class="heading-row"><div><h1>Projetos disponíveis</h1><p>Oportunidades de demonstração e projetos publicados pelas empresas cadastradas.</p></div>{% if g.user and g.user.role == 'company' %}<a href="{{ url_for('create_project') }}" class="button">+ Publicar projeto</a>{% endif %}</div>
+<form method="get" class="filter-panel" aria-label="Filtros de projetos">
+<label>Categoria<select name="categoria"><option value="">Todas</option>{% for label in categories %}<option value="{{ label }}" {% if category==label %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+<label>Valor mínimo (R$)<input type="number" name="valor_min" min="0" step="0.01" value="{{ min_value }}" placeholder="0,00"></label>
+<label>Valor máximo (R$)<input type="number" name="valor_max" min="0" step="0.01" value="{{ max_value }}" placeholder="500,00"></label>
+<label>Prazo até<input type="date" name="prazo_ate" value="{{ deadline }}"></label>
+<button type="submit" class="button">Filtrar</button><a class="secondary-button" href="{{ url_for('projects') }}">Limpar</a></form>
+<div class="cards">{% for p in projects %}<article class="card"><div class="eyebrow">{{ p.category }}</div><h2><a class="card-title" href="{{ url_for('project_detail', project_id=p.id) }}">{{ p.title }}</a></h2><p>{{ p.description|truncate(145) }}</p><p class="muted">{{ p.company_name or p.owner_name }}</p><strong>{{ p.amount_cents|brl }}</strong><p>Prazo: {{ p.deadline_date|brdate }}</p><a class="button" href="{{ url_for('project_detail', project_id=p.id) }}">Ver detalhes</a></article>{% else %}<p>Nenhum projeto encontrado para os filtros escolhidos.</p>{% endfor %}</div>{% endblock %}

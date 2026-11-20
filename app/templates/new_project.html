@@ -1,0 +1,9 @@
+{% extends 'base.html' %}{% block content %}<div class="auth-card wide"><div class="eyebrow">ÁREA DA EMPRESA</div><h1>Publicar projeto</h1><p>Informe o que precisa ser entregue, o valor e o prazo. Os pagamentos do MVP são simulados.</p>
+<form method="post" class="form-stack"><input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+<label for="title">Título</label><input id="title" name="title" maxlength="120" minlength="5" required value="{{ values.title }}" placeholder="Ex.: 10 posts para Instagram">
+<label for="description">Descrição</label><textarea id="description" name="description" maxlength="3000" minlength="15" rows="4" required>{{ values.description }}</textarea>
+<label for="category">Categoria</label><select id="category" name="category" required><option value="">Selecione</option>{% for c in categories %}<option value="{{ c }}" {% if values.category==c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select>
+<label for="amount">Valor do projeto (R$)</label><input id="amount" name="amount" type="number" step="0.01" min="1" max="100000" required value="{{ values.amount }}" placeholder="250.00">
+<label for="deadline">Prazo de entrega</label><input id="deadline" name="deadline" type="date" min="{{ today }}" required value="{{ values.deadline }}">
+<label for="deliverables">Entregáveis</label><textarea id="deliverables" name="deliverables" maxlength="2000" minlength="5" rows="3" required placeholder="Ex.: 10 artes + 10 legendas">{{ values.deliverables }}</textarea>
+<button class="button" type="submit">Publicar projeto</button></form></div>{% endblock %}

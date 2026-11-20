@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block content %}
+<a class="text-link" href="{{ url_for('projects') }}">← Voltar aos projetos</a>
+<article class="card detail">
+  <div class="eyebrow">{{ project.category }}</div>
+  <h1>{{ project.title }}</h1>
+  <p class="muted">Publicado por {{ project.company_name or project.owner_name }}</p>
+  <div class="detail-metrics">
+    <span><strong>{{ project.amount_cents|brl }}</strong> · valor ilustrativo</span>
+    <span>Prazo: <strong>{{ project.deadline_date|brdate }}</strong></span>
+    <span>Status: <strong>{{ {'open':'Aberto','in_progress':'Em andamento','delivered':'Entregue','completed':'Concluído'}.get(project.status, project.status) }}</strong></span>
+  </div>
+  <h2>Descrição</h2><p class="preserve-lines">{{ project.description }}</p>
+  <h2>Entregáveis</h2><p class="preserve-lines">{{ project.deliverables }}</p>
+  <p class="notice">Pagamentos sempre simulados no MVP escolar.</p>
+  {% if g.user and g.user.role == 'company' and g.user.id == project.company_id %}
+    <a class="button" href="{{ url_for('project_applications',project_id=project.id) }}">Ver candidaturas</a>
+  {% elif g.user and g.user.role == 'student' %}
+    {% if applied %}
+      <div class="info-box">Você já se candidatou a este projeto. <a href="{{ url_for('my_applications') }}">Ver minhas candidaturas</a>.</div>
+    {% elif project.status == 'open' %}
+      <section class="apply-box"><h2>Candidatar-se</h2>
+        <form method="post" action="{{ url_for('apply_project', project_id=project.id) }}" class="form-stack">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <label for="message">Mensagem para a empresa</label>
+          <textarea id="message" name="message" rows="5" minlength="10" maxlength="1000" required placeholder="Conte por que você é a pessoa certa para este projeto."></textarea>
+          <button class="button" type="submit">Enviar candidatura</button>
+        </form>
+      </section>
+    {% else %}<p class="info-box">Este projeto não recebe novas candidaturas.</p>{% endif %}
+  {% elif not g.user %}
+    <p><a href="{{ url_for('auth') }}">Entre na sua conta</a> para se candidatar aos projetos.</p>
+  {% endif %}
+
+  {% if can_access_private and project.status in ('in_progress', 'delivered', 'completed') %}
+  <section class="workflow-panel" id="entrega" aria-label="Acompanhamento da entrega">
+    <h2>Acompanhamento do projeto</h2>
+    {% if g.user.id == project.selected_student_id and project.status == 'in_progress' %}
+      <div class="delivery-guide"><span class="eyebrow">SUA PRÓXIMA AÇÃO</span><h3>Entregar meu trabalho</h3><p>Você foi selecionado! Basta compartilhar um link que permita à empresa visualizar o arquivo.</p><ol><li>Conclua o trabalho em Canva, Drive, Figma ou GitHub.</li><li>Copie o link de visualização e confirme a permissão de acesso.</li><li>Cole o link aqui e clique em <strong>Enviar trabalho final</strong>.</li></ol><p class="muted">Dica: abra o link em uma janela anônima antes de enviar, para conferir se a empresa conseguirá acessar.</p></div>
+      <form class="form-stack delivery-form" method="post" action="{{ url_for('submit_delivery', project_id=project.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label for="delivery_url">Cole o link do trabalho final</label>
+        <input type="url" id="delivery_url" name="delivery_url" maxlength="1000" required placeholder="https://drive.google.com/..." aria-describedby="delivery-tip">
+        <small id="delivery-tip">Somente links HTTP/HTTPS. Não cole senhas ou informações privadas.</small>
+        <button type="submit" class="button">Enviar trabalho final →</button>
+      </form>
+    {% elif project.status == 'in_progress' %}
+      <p class="info-box">Aguardando o envio da entrega pelo estudante.</p>
+    {% endif %}
+    {% if delivery %}
+      <p><strong>Trabalho enviado:</strong> <a href="{{ delivery.delivery_url }}" target="_blank" rel="noopener noreferrer">Abrir link da entrega</a></p>
+      <p class="muted">Enviado em {{ delivery.delivered_at.strftime('%d/%m/%Y às %H:%M') }}.</p>
+      {% if project.status == 'delivered' and g.user.id == project.company_id %}
+        <form method="post" action="{{ url_for('approve_delivery', project_id=project.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button type="submit" class="button">Aprovar entrega e concluir projeto</button>
+        </form>
+      {% elif project.status == 'delivered' %}
+        <p class="info-box">Entrega enviada — aguardando aprovação da empresa.</p>
+      {% endif %}
+      {% if delivery.approved_at %}<p class="info-box">Entrega aprovada em {{ delivery.approved_at.strftime('%d/%m/%Y') }}.</p>{% endif %}
+    {% endif %}
+    {% if payment %}
+      <div class="simulation-banner" role="note">
+        <strong>PAGAMENTO SIMULADO — nenhuma transação real</strong>
+        <p>Valor fictício do projeto: {{ payment.amount_cents|brl }}. Comissão ilustrativa da plataforma: {{ payment.commission_percent }}% ({{ (payment.amount_cents * payment.commission_percent // 100)|brl }}).</p>
+        <p>Esta confirmação é apenas parte da demonstração escolar. Não houve pagamento, cobrança ou transferência.</p>
+      </div>
+    {% endif %}
+    {% if project.status == 'completed' %}
+      <h2>Avaliação da experiência</h2>
+      {% if my_review %}
+        <p class="info-box">Sua avaliação já foi registrada: {{ my_review.rating }}/5 estrelas.</p>
+      {% else %}
+        <form class="form-stack" method="post" action="{{ url_for('review_project', project_id=project.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <label for="rating">Nota de 1 a 5</label>
+          <select id="rating" name="rating" required>
+            <option value="">Selecione a nota</option>
+            {% for number in range(1,6) %}<option value="{{ number }}">{{ number }} estrela{{ 's' if number > 1 else '' }}</option>{% endfor %}
+          </select>
+          <label for="comment">Comentário (opcional)</label>
+          <textarea id="comment" name="comment" rows="3" maxlength="1000" placeholder="Como foi a experiência?"></textarea>
+          <button type="submit" class="button">Enviar avaliação</button>
+        </form>
+      {% endif %}
+      {% if reviews %}
+        <h3>Avaliações recebidas</h3>
+        {% for review in reviews %}
+          <div class="review-item"><strong>{{ review.reviewer_name }} — {{ review.rating }}/5</strong>
+          {% if review.comment %}<p class="preserve-lines">{{ review.comment }}</p>{% endif %}</div>
+        {% endfor %}
+      {% endif %}
+    {% endif %}
+  </section>
+  {% endif %}
+</article>
+{% endblock %}

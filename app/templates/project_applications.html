@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<a class="text-link" href="{{ url_for('my_projects') }}">← Meus projetos</a>
+<h1>Candidaturas — {{ project.title }}</h1>
+<p>Status: <strong>{{ {'open':'Aberto','in_progress':'Em andamento','delivered':'Entregue','completed':'Concluído'}.get(project.status,project.status) }}</strong></p>
+<div class="cards">
+  {% for a in applications %}
+  <article class="card">
+    <h2>{{ a.name }}</h2>
+    <p class="muted">{{ a.course or 'Curso não informado' }} · {{ a.institution or 'Instituição não informada' }}</p>
+    {% if a.skills %}<p><strong>Habilidades:</strong> {{ a.skills }}</p>{% endif %}
+    {% if a.portfolio_url and (a.portfolio_url.startswith('https://') or a.portfolio_url.startswith('http://')) %}<p><a href="{{ a.portfolio_url }}" target="_blank" rel="noopener noreferrer">Ver portfólio</a></p>{% endif %}
+    <p class="preserve-lines"><strong>Apresentação:</strong> {{ a.message }}</p>
+    {% if project.selected_student_id == a.student_id %}<p class="info-box">Estudante selecionado</p>
+    {% elif project.status == 'open' %}
+      <form method="post" action="{{ url_for('select_applicant', project_id=project.id, application_id=a.id) }}" onsubmit="return confirm('Selecionar este estudante e iniciar o projeto?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button class="button" type="submit">Selecionar estudante</button>
+      </form>
+    {% endif %}
+  </article>
+  {% else %}<p>Nenhum estudante se candidatou a este projeto ainda.</p>{% endfor %}
+</div>
+{% endblock %}

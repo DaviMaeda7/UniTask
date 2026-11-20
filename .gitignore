@@ -1,0 +1,31 @@
+# Ambiente e segredos
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+.envrc
+*.pem
+*.key
+*.p12
+*.pfx
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+# IDE / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+# Dados locais / dumps
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.backup
+*.sql.gz
+instance/
+logs/
+*.log
