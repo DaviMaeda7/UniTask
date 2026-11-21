@@ -55,6 +55,20 @@
           <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
           <button type="submit" class="button">Aprovar entrega e concluir projeto</button>
         </form>
+        <div class="contestacao-demo" style="margin-top: 1rem;">
+          <button type="button" class="button button-secondary" aria-haspopup="dialog"
+                  onclick="document.getElementById('contestacao-demo-{{ project.id }}').showModal()">
+            Contestar entrega (demonstração)
+          </button>
+          <p class="muted" style="margin-top: .5rem;">Recurso ilustrativo: nenhuma contestação é registrada ou enviada.</p>
+        </div>
+        <dialog id="contestacao-demo-{{ project.id }}" aria-labelledby="contestacao-titulo-{{ project.id }}"
+                style="max-width: 32rem; width: calc(100% - 2rem); padding: 1.5rem; border: 1px solid #d7c9fa; border-radius: 16px; box-shadow: 0 16px 40px #1f174633;">
+          <h2 id="contestacao-titulo-{{ project.id }}">Contestação de entrega — demonstração</h2>
+          <p>Em uma versão futura, se o trabalho entregue não corresponder ao escopo combinado, a empresa poderá solicitar uma análise da equipe UniTask. A equipe avaliará as evidências das duas partes antes de definir os próximos passos.</p>
+          <p><strong>Esta função é apenas demonstrativa:</strong> não cria um chamado, não avisa a equipe e não altera o status do projeto nem o pagamento simulado.</p>
+          <form method="dialog"><button type="submit" class="button">Entendi</button></form>
+        </dialog>
       {% elif project.status == 'delivered' %}
         <p class="info-box">Entrega enviada — aguardando aprovação da empresa.</p>
       {% endif %}
